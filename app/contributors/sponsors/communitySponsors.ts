@@ -5,7 +5,7 @@ export interface SponsorItem {
     description?: string
     image: string
     imageFit?: 'contain' | 'cover'
-    linkedin: string
+    linkedin?: string
     website?: string
 }
 
@@ -16,6 +16,5 @@ export const communitySponsors: SponsorItem[] = [
         image: '/sponsors/skinnovation.png',
         imageFit: 'contain',
         website: 'https://skinnovation.at/',
-        linkedin: 'https://www.linkedin.com/company/skinnovation/',
     },
 ]
