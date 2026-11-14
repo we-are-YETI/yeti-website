@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Linkedin } from 'lucide-react'
+import { Globe, Linkedin } from 'lucide-react'
 
 export type ContributorItem = {
     id: string
@@ -11,7 +11,9 @@ export type ContributorItem = {
     company?: string
     description?: string
     image: string
+    imageFit?: 'contain' | 'cover'
     linkedin?: string
+    website?: string
 }
 
 export function ContributorGrid({ items }: { items: ContributorItem[] }) {
@@ -33,7 +35,7 @@ export function ContributorGrid({ items }: { items: ContributorItem[] }) {
                                 src={item.image}
                                 alt={item.name}
                                 fill
-                                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                className={`transition-transform duration-700 group-hover:scale-105 ${item.imageFit === 'contain' ? 'object-contain object-[center_35%] p-3' : 'object-cover'}`}
                             />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center bg-neutral-800 text-neutral-600">
@@ -46,7 +48,7 @@ export function ContributorGrid({ items }: { items: ContributorItem[] }) {
 
                         {/* Content */}
                         <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-500">
-                            <h3 className="text-xl font-bold text-white mb-1 leading-tight drop-shadow-md">{item.name}</h3>
+                            <h3 className="break-words text-xl font-bold text-white mb-1 leading-tight drop-shadow-md">{item.name}</h3>
                             {/* Company */}
                             {item.company && (
                                 <p className="text-white/80 text-xs font-medium drop-shadow-sm mb-2">
@@ -60,16 +62,28 @@ export function ContributorGrid({ items }: { items: ContributorItem[] }) {
                                 </p>
                             )}
                             {/* LinkedIn Icon and Role */}
-                            {(item.linkedin || item.role) && (
-                                <div className="flex items-center justify-between gap-2">
+                            {(item.linkedin || item.website || item.role) && (
+                                <div className={`flex items-center gap-2 ${item.website ? '' : 'justify-between'}`}>
                                     {item.linkedin && (
                                         <a
                                             href={item.linkedin}
+                                            aria-label={`Visit ${item.name} on LinkedIn`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-[#0A66C2] hover:text-white text-white transition-all duration-300 backdrop-blur-md border border-white/20 hover:border-transparent hover:scale-110 shadow-lg flex-shrink-0"
                                         >
                                             <Linkedin size={16} />
+                                        </a>
+                                    )}
+                                    {item.website && (
+                                        <a
+                                            href={item.website}
+                                            aria-label={`Visit ${item.name} website`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-300 backdrop-blur-md border border-white/20 hover:border-transparent hover:scale-105 shadow-lg flex-shrink-0"
+                                        >
+                                            <Globe size={16} />
                                         </a>
                                     )}
                                     {item.role && (

@@ -5,21 +5,13 @@ import { ContributorGrid } from '@/components/contributors/ContributorGrid'
 import { FadeIn } from '@/components/FadeIn'
 import { Button } from '@/components/Button'
 import { useSheetData } from '@/hooks/useSheetData'
-
-interface SponsorItem {
-    id: string
-    name: string
-    role: string
-    description: string
-    image: string
-    linkedin: string
-}
+import { communitySponsors, type SponsorItem } from './communitySponsors'
 
 export default function SponsorsPage() {
     const { data, isLoading } = useSheetData<Sponsor>("sponsors", getSponsorsData)
 
     // Group data by category
-    const groupedData = data.reduce((acc: Record<string, SponsorItem[]>, item: Sponsor) => {
+    const groupedData = data.reduce<Record<string, SponsorItem[]>>((acc, item) => {
         const category = item.category || 'Our Partners'
         if (!acc[category]) {
             acc[category] = []
@@ -33,7 +25,10 @@ export default function SponsorsPage() {
             linkedin: item.linkedin,
         })
         return acc
-    }, {} as Record<string, SponsorItem[]>)
+    }, {})
+
+    groupedData['Community Partners'] ??= []
+    groupedData['Community Partners'].push(...communitySponsors)
 
     // Get categories and sort them if needed (optional)
     const categories = Object.keys(groupedData)
