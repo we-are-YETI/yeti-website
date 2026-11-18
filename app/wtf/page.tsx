@@ -495,14 +495,7 @@ export default function WTFPage() {
 
             {/* Community Section */}
             {(() => {
-              const whatsapp = contactInfo.find((c) =>
-                c.medium.toLowerCase().includes("what"),
-              );
-              // Fallback if not fetched yet or not found
-              const whatsappLink =
-                whatsapp?.address ||
-                "https://chat.whatsapp.com/Gf290Qt4NEp7Chb070Dxmp"; // Fallback link form footer
-              const qrImage = whatsapp?.qrImage || "/qr-placeholder.png";
+              const community = COMMUNITY_INFO[cityName] ?? COMMUNITY_INFO["Dresden"];
 
               return (
                 <div className="relative bg-[#25D366] text-white rounded-3xl p-8 md:p-12 overflow-hidden min-h-[400px] flex flex-col group">
@@ -539,11 +532,11 @@ export default function WTFPage() {
 
                     <div className="mt-auto flex flex-col items-center justify-end gap-6 w-full relative z-20">
                       {/* Qr Code */}
-                      {whatsapp?.qrImage && (
+                      {community.qrImage && (
                         <div className="w-48 h-48 bg-white p-3 rounded-xl shadow-lg shrink-0 overflow-hidden transform group-hover:scale-105 transition-transform">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={qrImage}
+                            src={community.qrImage}
                             alt="WhatsApp QR Code"
                             className="w-full h-full object-contain"
                             loading="lazy"
@@ -553,7 +546,7 @@ export default function WTFPage() {
                       )}
 
                       <a
-                        href={whatsappLink}
+                        href={community.whatsappLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center px-8 py-3 bg-white text-[#25D366] font-bold rounded-full transition-all hover:bg-neutral-100 hover:scale-105 shadow-lg w-full sm:w-auto"

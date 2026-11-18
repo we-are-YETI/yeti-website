@@ -109,6 +109,18 @@ export const EXTERNAL_LINKS = {
   twitter: 'https://twitter.com/yeti_dresden', // Update with actual link
 } as const
 
+// Community links per city (hostname-based)
+export const COMMUNITY_INFO: Record<string, { whatsappLink: string; qrImage: string }> = {
+  Dresden: {
+    whatsappLink: 'https://chat.whatsapp.com/Gf290Qt4NEp7Chb070Dxmp',
+    qrImage: '/qr-placeholder.png',
+  },
+  Leipzig: {
+    whatsappLink: 'https://chat.whatsapp.com/ISHFUNFmnMI6tMyFxiGfoG?mode=gi_t',
+    qrImage: '/community/leipzig-whatsapp-qr.jpeg',
+  },
+}
+
 // Helper functions
 export function getCityInfo(city: City) {
   return CITY_INFO[city]
