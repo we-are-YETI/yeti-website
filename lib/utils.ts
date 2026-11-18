@@ -32,3 +32,22 @@ export function processImageUrl(
 
 // Backward compatibility alias if needed, but we will update usages.
 export const convertGoogleDriveLink = processImageUrl
+
+export const CITY_HOSTNAMES: Record<string, string> = {
+  "yeti-dresden.org": "Dresden",
+  "www.yeti-dresden.org": "Dresden",
+  "yeti-leipzig.org": "Leipzig",
+  "www.yeti-leipzig.org": "Leipzig",
+  //For local testing of the fuctionality, you can add your local hostnames here. For example:
+  // "localhost": "LocalTest",
+  // "127.0.0.1": "LocalTest2",
+}
+
+export function getCityFromHostname(hostname?: string): string {
+  const host =
+    hostname ?? (typeof window !== "undefined" ? window.location.hostname : "")
+  return CITY_HOSTNAMES[host.toLowerCase()] ?? "Dresden"
+}
+
+export const isLeipzig = (): boolean => getCityFromHostname() === "Leipzig"
+
