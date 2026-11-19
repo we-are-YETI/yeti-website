@@ -15,6 +15,7 @@ export default async function sitemap() {
     "/application/dresden",
     "/application/leipzig",
     "/projects",
+    "/blogs",
     "/contributors",
     "/events",
     "/impressum",

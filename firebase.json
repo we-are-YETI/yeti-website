@@ -30,5 +30,11 @@
         "type": 301
       }
     ]
+  },
+  "firestore": {
+    "rules": "firebase/firestore.rules"
+  },
+  "storage": {
+    "rules": "firebase/blog.storage.rules"
   }
 }

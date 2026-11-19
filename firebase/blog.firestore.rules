@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function member() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('^[^@]+@(yeti-dresden[.]org|yeti-leipzig[.]org)$');
+    }
+    function role() { return get(/databases/$(database)/documents/blogUsers/$(request.auth.uid)).data.role; }
+    function admin() { return member() && role() == 'admin'; }
+    function reviewer() { return member() && role() in ['content', 'admin']; }
+    function validArticle(data) {
+      return data.keys().hasOnly(['id', 'authorId', 'authorName', 'linkedin', 'title', 'html', 'status', 'feedback', 'updatedAt', 'coverUrl', 'coverAlt'])
+        && data.keys().hasAll(['id', 'authorId', 'authorName', 'linkedin', 'title', 'html', 'status', 'feedback', 'updatedAt'])
+        && data.id is string && data.authorId is string && data.authorName is string
+        && data.linkedin is string && data.title is string && data.html is string && data.feedback is string
+        && data.title.size() <= 180 && data.authorName.size() <= 120 && data.linkedin.size() <= 500
+        && data.html.size() <= 500000 && data.feedback.size() <= 10000
+        && data.get('coverUrl', '') is string
+        && data.get('coverAlt', '') is string
+        && data.get('coverAlt', '').size() <= 200
+        && (data.get('coverUrl', '') == '' || (
+          data.coverUrl.size() <= 2048 &&
+          data.coverUrl.matches('^https://firebasestorage[.]googleapis[.]com/v0/b/yeti-dresden[.]firebasestorage[.]app/o/blog-images%2F.*')
+        ))
+        && data.updatedAt is number
+        && data.status in ['draft', 'review', 'changes_requested', 'published']
+        && (!(data.status in ['review', 'published']) || (data.title.size() > 0 && data.authorName.size() > 0
+          && data.linkedin.matches('^https://(www[.])?linkedin[.]com/in/[^ /?#]+/?([?].*)?$')));
+    }
+    match /blogInvitations/{email} {
+      allow get: if member() && (request.auth.token.email == email || admin());
+      allow list, create, update, delete: if admin();
+    }
+    match /blogUsers/{uid} {
+      allow read: if member() && (uid == request.auth.uid || admin());
+      allow create: if member() && uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['email', 'role'])
+        && request.resource.data.email == request.auth.token.email
+        && (request.resource.data.role == 'member' ||
+          request.resource.data.role == get(/databases/$(database)/documents/blogInvitations/$(request.auth.token.email)).data.role);
+      allow update: if admin() && uid != request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
+        && request.resource.data.role in ['member', 'content', 'admin'];
+    }
+    match /blogDrafts/{id} {
+      allow get: if member() && (!exists(/databases/$(database)/documents/blogDrafts/$(id)) || resource.data.authorId == request.auth.uid || reviewer());
+      allow list: if member() && (resource.data.authorId == request.auth.uid || reviewer());
+      allow create: if member() && validArticle(request.resource.data) && request.resource.data.id == id
+        && request.resource.data.authorId == request.auth.uid
+        && (request.resource.data.status in ['draft', 'review'] || reviewer())
+        && request.resource.data.feedback == '';
+      allow update: if member() && validArticle(request.resource.data)
+        && request.resource.data.id == resource.data.id && request.resource.data.authorId == resource.data.authorId
+        && (reviewer() || (resource.data.authorId == request.auth.uid
+          && request.resource.data.status in ['draft', 'review']
+          && request.resource.data.feedback == resource.data.feedback));
+      allow delete: if admin();
+    }
+    match /blogPublished/{id} {
+      allow read: if true;
+      allow create, update: if reviewer()
+        && request.resource.data.keys().hasOnly(['id', 'authorId', 'authorName', 'linkedin', 'title', 'html', 'status', 'updatedAt', 'coverUrl', 'coverAlt'])
+        && request.resource.data.status == 'published'
+        && getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.status == 'published'
+        && request.resource.data.id == id
+        && request.resource.data.authorId == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.authorId
+        && request.resource.data.authorName == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.authorName
+        && request.resource.data.linkedin == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.linkedin
+        && request.resource.data.title == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.title
+        && request.resource.data.html == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.html
+        && request.resource.data.get('coverUrl', '') == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.get('coverUrl', '')
+        && request.resource.data.get('coverAlt', '') == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.get('coverAlt', '')
+        && request.resource.data.updatedAt == getAfter(/databases/$(database)/documents/blogDrafts/$(id)).data.updatedAt;
+      allow delete: if reviewer();
+    }
+  }
+}

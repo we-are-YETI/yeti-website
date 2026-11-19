@@ -7,6 +7,7 @@ export function DynamicHeader() {
   const pathname = usePathname()
   const isEventDetailPage = pathname.startsWith('/events/') && pathname !== '/events'
   const isAdminConsole = pathname.startsWith('/adminconsole')
+  const isBlogPage = pathname === '/blogs' || pathname.startsWith('/blogs/')
 
   return (
     <HeaderClient
@@ -36,7 +37,7 @@ export function DynamicHeader() {
               },
             ]
           },
-          // { label: "Blog", href: "/blogs" },
+          { label: "Blog", href: "/blogs" },
           { label: "Projects", href: "/projects" },
           {
             label: "Contributors",
@@ -62,7 +63,7 @@ export function DynamicHeader() {
         ]
       }}
       title="YETI"
-      variant={(isEventDetailPage || isAdminConsole) ? 'black' : 'default'}
+      variant={(isEventDetailPage || isAdminConsole || isBlogPage) ? 'black' : 'default'}
     />
   )
 }

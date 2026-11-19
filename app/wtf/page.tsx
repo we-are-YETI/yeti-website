@@ -8,6 +8,7 @@ import { MissionSection } from "@/components/MissionSection";
 import {
   getCityInfo,
   PROGRAM_INFO,
+  COMMUNITY_INFO,
   getTestimonialsConfig,
 } from "@/lib/constants";
 import { getCityFromHostname } from "@/lib/utils";

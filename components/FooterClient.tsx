@@ -17,6 +17,7 @@ const footerSections = [
     title: "Community",
     links: [
       { name: "Events", href: "/events" },
+      { name: "Blog", href: "/blogs" },
       { name: "Contributors", href: "/contributors" },
       { name: "Projects", href: "/projects" },
     ],
